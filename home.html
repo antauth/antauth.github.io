@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Internet Radio Player Home</title>
+    <link rel="stylesheet" type="text/css" href="css/custom/reset.css">
+    <link rel="stylesheet" type="text/css"
+          href="css/unsemantic-master/assets/stylesheets/unsemantic-grid-desktop-no-ie7.css">
+    <link rel="stylesheet" href="css/custom/custom-player.css">
+    <link rel="stylesheet" href="css/font-awesome-4.0.3/css/font-awesome.min.css">
+    <script src="js/jquery-2.0.3.min.js"></script>
+    <script src="js/playlist.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Comfortaa' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+<!-- Entire application -->
+<div id="background" class="grid-container">
+        <!-- Information Bar -->
+        <div id="info_bar" class="grid-100 grid-parent">
+            <div id="skin_player" class="grid-50 grid-parent"><i class="fa fa-picture-o"></i> skin player
+            <!-- Skin Options -->
+                <div id="skin_controls" class="grid-100 grid-parent">
+                    <div id="skin_background" class="grid-25">Background:<input type="color" class="background_color" name="background_color"></div>
+                    <div id="skin_font_color" class="grid-25">Font:<input type="color" class="font_color" name="font_color"></div>
+                    <div id="skin_font_size" class="grid-25">Font Size:<i id="font_smaller" class="fa fa-font"></i> <i id="font_bigger" class="fa fa-font fa-2x"></i></div>
+                    <div id="skin_font" class="grid-25">Font:</div>
+                </div>
+            </div>
+            <div id="current_user" class="grid-50">@BobbyDigital</div>
+        </div>
+
+        <!-- Menu -->
+        <div id="menu" class="grid-25">
+            <!-- menu crap -->
+            <h2>Tracks</h2>
+            <ol>
+                <li id="0">The Next Movement - The Roots</li>
+                <li id="1">The 6th Sense - Common</li>
+                <li id="2">One (Piano) - Unclassicalpiano</li>
+            </ol>
+        </div>
+        <!-- player -->
+        <div id="main" class="grid-25 grid-parent">
+            <!-- player crap -->
+            <div id="player" class="grid-60 grid-parent">
+                <div id="cover" class="grid-100">
+                    <h2 id="playlist_title">Demo</h2>
+                    <h3 id="song_title"></h3>
+                    <img id="cover_image" src="" width="300"/>
+                </div>
+                <div id="seek_control" class="grid-100">
+                    <input id="seek" type="range" min="0" max="1000" value="0"/>
+                </div>
+                <div id="player_controls" class="grid-100">
+                    <span id="btn_prev"><i class="fa fa-step-backward fa-2x"></i></span>
+                    <span id="btn_play"><i class="fa fa-play fa-3x"></i></span>
+                    <span id="btn_pause"><i class="fa fa-pause fa-3x"></i></span>
+                    <span id="btn_next"><i class="fa fa-step-forward fa-2x"></i></span>
+                </div>
+            </div>
+        </div>
+        <div id="social" class="grid-40 grid-parent">
+            <div id="your_comment" class="grid-100">
+                <textarea id="comment" rows="2" cols="93" maxlength="300"></textarea>
+                <button id="btn_comment">Submit</button>
+            </div>
+            <div id="comments" class="grid-100">
+                <ul>
+                    <li id="hidden_comment">
+                        <div class="pretext">Got something to say about this song?</div>
+                        <div class="posttext"><a href="profile/profile">You</a></div>
+                    </li>
+                    <li>
+                        <div class="pretext">Oh  man how I love this song!!!</div>
+                        <div class="posttext"><a href="profile/SallyFields">@SallyFields</a></div>
+                    </li>
+                    <li>
+                        <div class="pretext">Listen to the hook <a href="">@3:54</a>. My favorite part!</div>
+                        <div class="posttext"><a href="profile/BeatJunky">@BeatJunky</a></div>
+                    </li>
+                    <li>
+                        <div class="pretext">I just saw them in concert in San Jose! They played with <a href="">@The Coup.</a></div>
+                        <div class="posttext"><a href="profile/AnonToRon">@AnonToRon</a></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        var currentSong = 0;
+        var audio = new Audio(playlist[currentSong]);
+        syncSong(currentSong);
+
+        var default_background_color = "#FFA500";
+        var default_font_color = "#FFFFFF";
+        var default_font = "Comfortaa";
+        var default_font_size = 100;
+        var current_font_size = default_font_size;
+
+        function syncSong(song) {
+            $("#cover_image").attr("src", album_cover[currentSong]);
+            $("#song_title").text(song_title[currentSong] + " - " + song_artist[currentSong]);
+        };
+
+
+        $("#btn_play").click(function () {
+            audio.play();
+            $("#btn_play").hide();
+            $("#btn_pause").show();
+        });
+        $("#btn_pause").click(function () {
+            audio.pause();
+            $("#btn_play").show();
+            $("#btn_pause").hide();
+        });
+        $("#btn_prev").click(function () {
+            var audioPlaying = !audio.paused;
+            if (currentSong > 0) {
+                currentSong--;
+            } else {
+                currentSong = playlist.length - 1;
+            }
+            audio.src = playlist[currentSong];
+            syncSong(currentSong);
+            if (audioPlaying) {
+                audio.play();
+            }
+        });
+        $("#btn_next").click(function () {
+            var audioPlaying = !audio.paused;
+            if (currentSong < (playlist.length - 1)) {
+                currentSong++;
+            } else {
+                currentSong = 0;
+            }
+            audio.src = playlist[currentSong];
+            syncSong(currentSong);
+            if (audioPlaying) {
+                audio.play();
+            }
+        });
+        $("#seek").change(function () {
+            audio.currentTime = $(this).val() / 1000 * audio.duration;
+        });
+        setInterval(function () {
+            $("#seek").val(audio.currentTime / audio.duration * 1000);
+        }, 500);
+
+        $("#comment").text("Got something to say about this song?");
+
+        $("#btn_comment").click(function(){
+            $("#hidden_comment").show();
+            $("#hidden_comment .pretext").text($("#comment").val());
+        });
+
+        $("textarea#comment").focus(function(){
+            $(this).val('');
+        });
+
+        $("#skin_player").click(function(){
+            if ($("#skin_controls").is(":visible")) {
+                //$("#skin_controls").hide();
+            }
+            else {
+                $("#skin_controls").show();
+            }
+        });
+
+        $(".background_color").change(function(){
+            $("#background").css("background-color", $(".background_color").val());
+        });
+
+        $(".font_color").change(function(){
+            $("html").css("color", $(".font_color").val());
+        });
+
+        $(".font_color").change(function(){
+            $("html").css("color", $(".font_color").val());
+        });
+
+        $("#font_smaller").click(function(){
+            current_font_size = current_font_size - 10;
+            $("html").css("font-size", current_font_size + "%");
+        });
+
+        $("#font_bigger").click(function(){
+            current_font_size = current_font_size + 10;
+            $("html").css("font-size", current_font_size + "%");
+        });
+    });
+</script>
+</body>
+</html>
